@@ -1,0 +1,10 @@
+class Addition:
+    def add(self, a, b):
+        print("Sum:", a + b)
+
+    def add_three(self, a, b, c):
+        print("Sum:", a + b + c)
+
+obj = Addition()
+obj.add(10, 20)
+obj.add_three(10, 20, 30)

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<h1>Welcome back</h1>
+<p class="intro">Sign in with your username and password.</p>
+<form method="post" class="form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button type="submit">Log in</button>
+</form>
+<p class="footnote">New here? <a href="{% url 'signup' %}">Create an account</a>.</p>
+{% endblock %}
