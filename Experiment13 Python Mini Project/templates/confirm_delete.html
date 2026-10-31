@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Delete Student | Smart Campus Analytics{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-3 mt-lg-5">
+  <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+    <div class="card text-center"><div class="card-body p-4 p-lg-5">
+      <div class="stat-icon bg-danger-subtle text-danger mx-auto mb-3" style="width:64px;height:64px;font-size:1.6rem"><i class="bi bi-trash3-fill"></i></div>
+      <div class="section-kicker mb-2" style="color:#dc2626">Destructive action</div>
+      <h1 class="page-title h3 mb-3">Delete this student?</h1>
+      <p class="muted mb-4">You are about to delete <strong class="text-dark">{{ student.name }}</strong> ({{ student.roll_no }}). This action cannot be undone.</p>
+      <div class="alert alert-warning text-start small"><i class="bi bi-exclamation-triangle-fill me-2"></i>Associated attendance and marks may also be deleted, depending on your model relationships.</div>
+      <form method="post" class="d-flex flex-column flex-sm-row justify-content-center gap-2 mt-4">{% csrf_token %}
+        <button class="btn btn-danger"><i class="bi bi-trash3 me-2"></i>Confirm delete</button>
+        <a class="btn btn-outline-secondary" href="{% url 'students' %}">Cancel and go back</a>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

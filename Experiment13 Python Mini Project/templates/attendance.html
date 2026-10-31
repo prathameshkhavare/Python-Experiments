@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Attendance | Smart Campus Analytics{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div><div class="section-kicker mb-2">Daily records</div><h1 class="page-title h2 mb-2">Attendance management</h1><p class="page-subtitle mb-0">Record attendance and review daily participation.</p></div>
+  <a class="btn btn-outline-success" href="{% url 'export' %}?type=attendance"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export attendance</a>
+</div>
+<div class="row g-3 align-items-start">
+  <div class="col-12 col-xl-4">
+    <div class="card">
+      <div class="card-header"><h2 class="h5 fw-bold mb-1"><i class="bi bi-pencil-square text-primary me-2"></i>Record attendance</h2><p class="muted small mb-0">Complete the form and save the record.</p></div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+              {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+          {% endfor %}
+          {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+          <button class="btn btn-primary w-100"><i class="bi bi-check2-circle me-2"></i>Save attendance</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-8">
+    <div class="card">
+      <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2"><div><h2 class="h5 fw-bold mb-1">Attendance records</h2><p class="muted small mb-0">Filter the list by date.</p></div><span class="badge text-bg-light border text-dark"><i class="bi bi-calendar3 me-1"></i>{{ selected_date|date:"M d, Y" }}</span></div>
+      <div class="card-body border-bottom">
+        <form method="get" class="row g-2 align-items-end">
+          <div class="col-12 col-sm-8"><label class="form-label" for="attendance-date">Choose date</label><input id="attendance-date" type="date" name="date" value="{{ selected_date|date:'Y-m-d' }}" class="form-control"></div>
+          <div class="col-12 col-sm-4"><button class="btn btn-outline-primary w-100"><i class="bi bi-funnel me-2"></i>Filter date</button></div>
+        </form>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover"><thead><tr><th>Student</th><th>Date</th><th>Status</th></tr></thead><tbody>
+        {% for record in records %}
+          <tr><td><div class="fw-semibold">{{ record.student.name }}</div><div class="small muted">{{ record.student.roll_no }}</div></td><td>{{ record.date|date:"M d, Y" }}</td><td>{% if record.status == "Present" %}<span class="badge rounded-pill text-bg-success"><i class="bi bi-check-circle me-1"></i>Present</span>{% else %}<span class="badge rounded-pill text-bg-danger"><i class="bi bi-x-circle me-1"></i>Absent</span>{% endif %}</td></tr>
+        {% empty %}
+          <tr><td colspan="3"><div class="empty-state"><i class="bi bi-calendar-x"></i><strong class="d-block text-dark">No attendance found</strong><span>No attendance records for the selected date.</span></div></td></tr>
+        {% endfor %}
+        </tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

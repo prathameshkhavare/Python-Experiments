@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Smart Campus Analytics{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div>
+    <div class="section-kicker mb-2">Overview</div>
+    <h1 class="page-title h2 mb-2">Campus dashboard</h1>
+    <p class="page-subtitle mb-0">A clear snapshot of students, attendance and academic performance.</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'export' %}?type=students"><i class="bi bi-download me-2"></i>Export students</a>
+    <a class="btn btn-primary" href="{% url 'student_add' %}"><i class="bi bi-plus-lg me-2"></i>Add student</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12 col-sm-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3"><span class="muted small fw-semibold">Total students</span><span class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></span></div>
+    <div class="stat-value">{{ total_students|default:"0" }}</div><div class="small muted mt-2">Registered learners</div>
+  </div></div></div>
+  <div class="col-12 col-sm-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3"><span class="muted small fw-semibold">Attendance records</span><span class="stat-icon bg-info-subtle text-info"><i class="bi bi-calendar2-check-fill"></i></span></div>
+    <div class="stat-value">{{ total_attendance|default:"0" }}</div><div class="small muted mt-2">Records saved</div>
+  </div></div></div>
+  <div class="col-12 col-sm-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3"><span class="muted small fw-semibold">Present rate</span><span class="stat-icon bg-success-subtle text-success"><i class="bi bi-graph-up-arrow"></i></span></div>
+    <div class="stat-value">{{ attendance_percentage|default:"0" }}<span class="fs-5">%</span></div><div class="progress mt-3" style="height:6px"><div class="progress-bar bg-success" role="progressbar" style="width:{{ attendance_percentage|default:0 }}%" aria-valuenow="{{ attendance_percentage|default:0 }}" aria-valuemin="0" aria-valuemax="100"></div></div>
+  </div></div></div>
+  <div class="col-12 col-sm-6 col-xl-3"><div class="card stat-card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3"><span class="muted small fw-semibold">Average mark</span><span class="stat-icon bg-warning-subtle text-warning-emphasis"><i class="bi bi-award-fill"></i></span></div>
+    <div class="stat-value">{{ overall_percentage|default:"0" }}<span class="fs-5">%</span></div><div class="small muted mt-2">Across recorded results</div>
+  </div></div></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-xl-7">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center"><div><h2 class="h5 fw-bold mb-1">Students by department</h2><p class="muted small mb-0">Distribution of registered students</p></div><span class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-bar-chart-fill"></i></span></div>
+      <div class="card-body">
+        {% if departments %}<div style="min-height:280px"><canvas id="departmentChart" aria-label="Students by department chart"></canvas></div>
+        {% else %}<div class="empty-state"><i class="bi bi-bar-chart"></i><strong class="d-block text-dark">No department data yet</strong><span>Add student records to see the chart.</span></div>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-5">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center"><div><h2 class="h5 fw-bold mb-1">Recently added</h2><p class="muted small mb-0">Latest student records</p></div><a class="small text-decoration-none fw-semibold" href="{% url 'students' %}">View all <i class="bi bi-arrow-right"></i></a></div>
+      <div class="card-body">
+        {% for student in recent_students %}
+          <div class="d-flex align-items-center gap-3 py-3 {% if not forloop.last %}border-bottom{% endif %}">
+            <div class="stat-icon bg-primary-subtle text-primary flex-shrink-0"><i class="bi bi-person-fill"></i></div>
+            <div class="flex-grow-1 min-w-0"><div class="fw-semibold text-truncate">{{ student.name }}</div><div class="small muted">{{ student.roll_no }} · {{ student.department }}</div></div>
+            <i class="bi bi-chevron-right muted"></i>
+          </div>
+        {% empty %}
+          <div class="empty-state"><i class="bi bi-person-plus"></i><strong class="d-block text-dark">No students yet</strong><span>Start by adding your first student.</span><div><a class="btn btn-primary btn-sm mt-3" href="{% url 'student_add' %}">Add student</a></div></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div><h2 class="h5 fw-bold mb-1">Low attendance alerts</h2><p class="muted small mb-0">Students below 75% with at least 5 attendance records</p></div>
+    <span class="badge rounded-pill text-bg-danger">{{ low_attendance|length }} alert{{ low_attendance|length|pluralize }}</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover"><thead><tr><th>Roll number</th><th>Student</th><th>Attendance</th><th>Indicator</th></tr></thead><tbody>
+    {% for item in low_attendance %}
+      <tr><td class="fw-semibold">{{ item.student.roll_no }}</td><td>{{ item.student.name }}</td><td><span class="badge text-bg-danger">{{ item.percentage }}%</span></td><td><span class="text-danger small"><i class="bi bi-exclamation-triangle-fill me-1"></i>Needs attention</span></td></tr>
+    {% empty %}
+      <tr><td colspan="4"><div class="empty-state py-4"><i class="bi bi-check-circle"></i><strong class="d-block text-dark">All clear</strong><span>No low-attendance alerts right now.</span></div></td></tr>
+    {% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ departments|json_script:"department-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(() => {
+  const element = document.getElementById("department-data");
+  const canvas = document.getElementById("departmentChart");
+  if (!element || !canvas) return;
+  const departmentData = JSON.parse(element.textContent);
+  if (!departmentData.length) return;
+  new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: departmentData.map(item => item.department),
+      datasets: [{ label: "Students", data: departmentData.map(item => item.total),
+        backgroundColor: "rgba(79, 70, 229, .82)", hoverBackgroundColor: "#3730a3",
+        borderRadius: 8, maxBarThickness: 54 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { padding: 12, displayColors: false } },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#667085" } },
+        y: { beginAtZero: true, ticks: { precision: 0, color: "#667085" }, grid: { color: "#edf0f6" }, border: { display: false } }
+      }
+    }
+  });
+})();
+</script>
+{% endblock %}

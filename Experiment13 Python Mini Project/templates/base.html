@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101828">
+  <title>{% block title %}Smart Campus Analytics{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sc-ink: #172033; --sc-muted: #667085; --sc-primary: #4f46e5;
+      --sc-primary-dark: #3730a3; --sc-bg: #f5f7fc; --sc-border: #e8ebf3;
+      --sc-card-shadow: 0 12px 34px rgba(16, 24, 40, .055);
+    }
+    body { background: var(--sc-bg); color: var(--sc-ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .navbar { background: linear-gradient(110deg, #101828, #202b52); box-shadow: 0 6px 24px rgba(16,24,40,.14); }
+    .navbar-brand { font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark { display:inline-grid; place-items:center; width:34px; height:34px; margin-right:.55rem; border-radius:11px; background:linear-gradient(135deg,#818cf8,#4f46e5); color:white; }
+    .navbar .nav-link { color:rgba(255,255,255,.72); border-radius:9px; margin:0 .12rem; padding:.55rem .8rem!important; }
+    .navbar .nav-link:hover, .navbar .nav-link.active { background:rgba(255,255,255,.12); color:#fff; }
+    .page-wrap { max-width:1500px; }
+    .page-content { min-height:calc(100vh - 150px); }
+    .card { border:1px solid rgba(232,235,243,.9); border-radius:18px; box-shadow:var(--sc-card-shadow); }
+    .card-header { background:transparent; border-bottom:1px solid var(--sc-border); padding:1.15rem 1.35rem; }
+    .card-body { padding:1.35rem; }
+    .page-title { font-weight:800; letter-spacing:-.04em; }
+    .page-subtitle { color:var(--sc-muted); }
+    .btn { border-radius:10px; font-weight:600; padding:.62rem .95rem; }
+    .btn-sm { border-radius:8px; padding:.4rem .7rem; }
+    .btn-primary { background:var(--sc-primary); border-color:var(--sc-primary); }
+    .btn-primary:hover { background:var(--sc-primary-dark); border-color:var(--sc-primary-dark); }
+    .form-control, .form-select { border-color:#dfe3ee; border-radius:10px; padding:.68rem .8rem; }
+    .form-control:focus, .form-select:focus { border-color:#a5b4fc; box-shadow:0 0 0 .22rem rgba(79,70,229,.12); }
+    .form-label { font-weight:650; font-size:.9rem; }
+    .table { --bs-table-bg:transparent; vertical-align:middle; margin-bottom:0; }
+    .table thead th { color:#667085; font-size:.75rem; text-transform:uppercase; letter-spacing:.065em; font-weight:750; border-bottom-color:var(--sc-border); white-space:nowrap; }
+    .table tbody td { border-bottom-color:#edf0f6; padding-top:.9rem; padding-bottom:.9rem; }
+    .table tbody tr:last-child td { border-bottom:0; }
+    .stat-card { position:relative; overflow:hidden; }
+    .stat-icon { display:grid; place-items:center; width:46px; height:46px; border-radius:14px; font-size:1.2rem; }
+    .stat-value { font-size:clamp(1.65rem,2.4vw,2.2rem); line-height:1.15; font-weight:850; letter-spacing:-.045em; }
+    .muted { color:var(--sc-muted); }
+    .section-kicker { color:var(--sc-primary); font-size:.74rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    .empty-state { padding:2.5rem 1rem; text-align:center; color:var(--sc-muted); }
+    .empty-state i { display:block; font-size:2rem; margin-bottom:.65rem; color:#98a2b3; }
+    .footer { color:#98a2b3; font-size:.82rem; padding:1.25rem 0; }
+    .alert { border:0; border-radius:12px; }
+    .badge { font-weight:700; letter-spacing:.01em; padding:.48em .7em; }
+    @media (max-width: 767px) {
+      .card-body { padding:1rem; }
+      .page-content { min-height:auto; }
+      .table-responsive { border-radius:10px; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container-fluid page-wrap py-1">
+    <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard' %}">
+      <span class="brand-mark"><i class="bi bi-mortarboard-fill"></i></span>
+      <span>Smart Campus<span class="d-none d-sm-inline"> Analytics</span></span>
+    </a>
+    {% if user.is_authenticated %}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <div class="navbar-nav me-auto ms-lg-4 mt-3 mt-lg-0">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}"><i class="bi bi-grid-1x2 me-1"></i> Dashboard</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'students' or request.resolver_match.url_name == 'student_add' or request.resolver_match.url_name == 'student_edit' or request.resolver_match.url_name == 'student_delete' %}active{% endif %}" href="{% url 'students' %}"><i class="bi bi-people me-1"></i> Students</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'attendance' %}active{% endif %}" href="{% url 'attendance' %}"><i class="bi bi-calendar2-check me-1"></i> Attendance</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'marks' %}active{% endif %}" href="{% url 'marks' %}"><i class="bi bi-journal-check me-1"></i> Marks</a>
+      </div>
+      <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0 pb-3 pb-lg-0">
+        <span class="text-white-50 small"><i class="bi bi-person-circle me-1"></i>{{ user.username }}</span>
+        <form method="post" action="{% url 'logout' %}" class="m-0">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-light"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</nav>
+
+<main class="container-fluid page-wrap page-content py-4 py-lg-5">
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2" role="alert">
+      <i class="bi bi-info-circle-fill"></i><div>{{ message }}</div>
+      <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="container-fluid page-wrap footer d-flex flex-wrap justify-content-between gap-2">
+  <span>© {% now "Y" %} Smart Campus Analytics</span>
+  <span>Academic insights, made clearer.</span>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

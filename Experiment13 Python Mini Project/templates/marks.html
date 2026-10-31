@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Marks & Results | Smart Campus Analytics{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div><div class="section-kicker mb-2">Academic performance</div><h1 class="page-title h2 mb-2">Marks & results</h1><p class="page-subtitle mb-0">Enter exam marks and review calculated grades.</p></div>
+  <a class="btn btn-outline-success" href="{% url 'export' %}?type=marks"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Export marks</a>
+</div>
+<div class="row g-3 align-items-start">
+  <div class="col-12 col-xl-4">
+    <div class="card"><div class="card-header"><h2 class="h5 fw-bold mb-1"><i class="bi bi-journal-plus text-primary me-2"></i>Enter marks</h2><p class="muted small mb-0">Add a student's exam result.</p></div>
+      <div class="card-body"><form method="post">{% csrf_token %}
+        {% for field in form %}<div class="mb-3"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}{% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}</div>{% endfor %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        <button class="btn btn-primary w-100"><i class="bi bi-save2 me-2"></i>Save marks</button>
+      </form></div>
+    </div>
+  </div>
+  <div class="col-12 col-xl-8">
+    <div class="card"><div class="card-header"><h2 class="h5 fw-bold mb-1">Recorded results</h2><p class="muted small mb-0">Saved marks, percentages and grades.</p></div>
+      <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Student</th><th>Subject / Exam</th><th>Score</th><th>Percentage</th><th>Grade</th></tr></thead><tbody>
+      {% for mark in records %}
+        <tr><td><div class="fw-semibold">{{ mark.student.name }}</div><div class="small muted">{{ mark.student.roll_no }}</div></td><td><div class="fw-semibold">{{ mark.subject }}</div><div class="small muted">{{ mark.exam }}</div></td><td class="text-nowrap fw-semibold">{{ mark.score }} <span class="muted fw-normal">/ {{ mark.max_score }}</span></td><td><div class="d-flex align-items-center gap-2"><span class="fw-semibold">{{ mark.percentage }}%</span><div class="progress flex-grow-1" style="height:5px;min-width:45px;max-width:90px"><div class="progress-bar" style="width:{{ mark.percentage }}%"></div></div></div></td><td><span class="badge rounded-pill text-bg-primary">{{ mark.grade }}</span></td></tr>
+      {% empty %}
+        <tr><td colspan="5"><div class="empty-state"><i class="bi bi-journal-x"></i><strong class="d-block text-dark">No marks entered</strong><span>Use the form to record the first result.</span></div></td></tr>
+      {% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
